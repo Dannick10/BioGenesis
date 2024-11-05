@@ -208,11 +208,58 @@ function Menu() {
       gap: 10px;
     "
     >
-    <p>Latencia: ${latancy}</p>
-    <p>tamanho: ${size}</p>
-    <p>Linha: ${tracingLine}</p>
+    <p class="pLatency">Latencia: ${latancy}</p>
+    <div class="latency">
+    <Button>-</Button>
+    <Button>+ </Button>
+    <div>
+    <p class="pSize">tamanho: ${size}</p>
+    <div class="size">
+    <Button>-</Button>
+    <Button>+ </Button>
+    </div>
+    <p class="pLine">Linha: ${tracingLine}</p>
+    <div class="tracing">
+    <Button>false</Button>
+    </div>
   `;
+
   document.body.appendChild(menu);
+
+  const divLatency = document.querySelectorAll(".latency button");
+  const divSize = document.querySelectorAll(".size button");
+  const divTracingLine = document.querySelectorAll(".tracing button");
+
+  const Pline = document.querySelector(".pLine");
+  const Psize = document.querySelector(".pSize");
+  const Platency = document.querySelector(".pLatency");
+
+  divLatency[0].addEventListener("click", () => {
+    latancy = latancy - 0.1;
+    Platency.innerHTML= `latencia: ${latancy}`
+  });
+
+  divLatency[1].addEventListener("click", () => {
+    latancy = latancy + 0.1;
+    Platency.innerHTML= `latencia: ${latancy}`
+  });
+
+  divSize[0].addEventListener("click", () => {
+    size = size - 0.1;
+    Psize.innerHTML = `tamanho: ${size}`;
+  });
+
+  divSize[1].addEventListener("click", () => {
+    size = size + 0.1;
+    Psize.innerHTML = `tamanho: ${size}`;
+  });
+
+  divTracingLine[0].addEventListener("click", (e) => {
+     tracingLine = !tracingLine;
+    e.target.innerHTML = tracingLine ? "true" : "false";
+    Pline.innerHTML = `Linha: ${tracingLine}`;
+  });
+
   const btnVerBacterias = document.querySelector("#btn-ver-bacterias");
   const btnRegra = document.querySelector("#btn-regra");
   const btnMenu = document.querySelector("#btn-menu");
@@ -221,6 +268,8 @@ function Menu() {
   btnRegra.addEventListener("click", makeRuleMenu);
   btnVerBacterias.addEventListener("click", seeAllBacterias);
   clean.addEventListener("click", cleanAll);
+
+
 }
 
 function cleanAll() {
