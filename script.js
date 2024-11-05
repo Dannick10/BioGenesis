@@ -182,20 +182,7 @@ const AllRules = [];
 
 function Menu() {
   const menu = document.createElement("div");
-  menu.style = `
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 30%;
-  height: 100%;
-  z-index: 1;
-  background-color: rgba(0,0,0,0.9);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-  color: white;
-  `;
+
 
   menu.innerHTML = "";
   menu.id = "menu";
@@ -257,18 +244,10 @@ function Bacteria() {
     <label for="quantidade">Quantidade:</label>
     <input autocomplete="off" type="number" step="0.1" min=".1"  name="quantidade"  />
     <label for="cor">Cor:</label>
-    <input autocomplete="off" type="color" name="cor" 
-    style="
-    -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 100px;
-  height: 100px;
-  background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-    " />
+    <input autocomplete="off" type="color" class="color" name="cor" />
+    <label for="#">ou</label>
+    <input id="valueColor" type="text" name="#" placeholder="digite a cor" />
+
     <Button
     id="btn-make"
     >
@@ -281,6 +260,18 @@ function Bacteria() {
      Voltar
     </Button>
   `;
+  const value = document.querySelector("input[name='#']");
+  const color = document.querySelector(".color");
+
+
+  color.addEventListener('change', (e) => {
+    value.value = e.target.value;
+  });
+
+  value.addEventListener("change", (e) => {
+    color.value = e.target.value
+  })
+
 
   const btnMake = document.querySelector("#btn-make");
   const btnBack = document.querySelector("#btn-back");
