@@ -50,11 +50,10 @@ button {
 
 .MenuButton span {
     background-color: white;
-    width: 100%;
+    width: 2em;
     height: 4px;
-    top: 0;
-    left: 0;
-    position: absolute;
+    left: .3em;
+    position: fixed;
 }
 
 .MenuButton span:nth-child(1) {
@@ -62,7 +61,7 @@ button {
 }
 
 .MenuButton span:nth-child(3) {
-    top: 1em;
+    top: 1.8em;
 }
 
 #active span:nth-child(1){
@@ -71,10 +70,14 @@ button {
 
 #active span:nth-child(2){
   transform: rotate(45deg);
-  top: .5em;
+  top: 1.3em;
 }
 
 #active span:nth-child(3){
   transform: rotate(-45deg);
-  top: .5em;
+  top: 1.3em;
+}
+
+.MenuButton span {
+  transition: 1s cubic-bezier(0.075, 0.82, 0.165, 1);
 }

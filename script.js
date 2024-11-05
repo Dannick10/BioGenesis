@@ -44,8 +44,9 @@ function draw(x, y, c, s) {
 }
 
 let particles = [];
-function particle(x, y, c) {
+function particle(x, y, c, id) {
   return {
+    id: id,
     x: x,
     y: y,
     vx: 0,
@@ -58,11 +59,11 @@ function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function create(number, color) {
+function create(number, color, id) {
   group = [];
   for (let i = 0; i < number; i++) {
     group.push(
-      particle(random(0, canvas.width), random(0, canvas.height), color)
+      particle(random(0, canvas.width), random(0, canvas.height), color, id)
     );
   }
   return group;
@@ -98,13 +99,23 @@ function rule(p1, p2, g) {
           }
         }
 
-        if (a.x <= 0 || a.x >= canvas.width) {
+        if (a.x <= size || a.x - size >= canvas.width) {
           a.vx = -a.vx;
-          a.x = a.vx;
+          a.x += a.vx;
         }
-        if (a.y <= 0 || a.y >= canvas.height) {
+        if (a.y <= size || a.y - size >= canvas.height) {
           a.vy = -a.vy;
-          a.y = a.vy;
+          a.x += a.vy;
+        }
+
+        if (b.x <= size || b.x - size >= canvas.width) {
+          b.vx = -b.vx;
+          b.x += b.vx;
+        }
+
+        if (b.y <= size || b.y - size >= canvas.height) {
+          b.vy = -b.vy;
+          b.x += b.vy;
         }
       }
     }
@@ -134,9 +145,12 @@ function colisionMouse(mouse) {
   }
 }
 function createObject(name, quantity, color) {
+  const idObj = Math.random().toString(36).substring(2, 15) + `${name}`;
+
   const obj = {
+    id: idObj,
     name: name,
-    particles: create(quantity, color),
+    particles: create(quantity, color, idObj),
   };
   particles = particles.concat(obj.particles);
   return obj;
@@ -193,6 +207,9 @@ function Menu() {
     <Button 
     id="btn-regra"
     >Criar Regra</Button>
+    <Button id="btn-ver-bacterias">
+     Ver Bacterias
+    </button>
     <Button id="clean">
    Limpar
     </button>
@@ -209,12 +226,13 @@ function Menu() {
     <p>Linha: ${tracingLine}</p>
   `;
   document.body.appendChild(menu);
-
+  const btnVerBacterias = document.querySelector("#btn-ver-bacterias");
   const btnRegra = document.querySelector("#btn-regra");
   const btnMenu = document.querySelector("#btn-menu");
   const clean = document.querySelector("#clean");
   btnMenu.addEventListener("click", Bacteria);
   btnRegra.addEventListener("click", makeRuleMenu);
+  btnVerBacterias.addEventListener("click", seeAllBacterias);
   clean.addEventListener("click", cleanAll);
 }
 
@@ -412,6 +430,60 @@ function makeBacteryMenu() {
   Menu();
 }
 
+function seeAllBacterias() {
+  const getMenu = document.querySelector("#menu");
+  getMenu.innerHTML = `
+    <h1>Bacterias</h1>
+  `;
+
+  AllBacterias.length == 0
+    ? (getMenu.innerHTML += `<p>Não há Bacterias</p>`)
+    : "";
+
+  getMenu.innerHTML += `
+   ${AllBacterias.map((bacteria) => {
+     return `
+      <div
+      style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: white;
+      color: black;
+      margin-bottom: 10px;
+      "
+      id="${bacteria.id}"
+      class="getBacteria"
+      >
+      <p>${bacteria.name}</p>
+      </div>
+      `;
+   }).join("")}
+  `;
+
+  getMenu.innerHTML += `
+ <button id="btn-back">Voltar</button>
+  `;
+
+  const getBacteria = document.querySelectorAll(".getBacteria");
+
+  getBacteria.forEach((bacteria) => {
+    bacteria.addEventListener("click", (e) => {
+      seeInfoBacterias(e.target.id);
+    });
+  });
+
+  const btnBack = document.querySelector("#btn-back");
+  btnBack.addEventListener("click", () => {
+    const menu = document.querySelector("#menu");
+    menu.remove();
+    Menu();
+  });
+}
+
 const MenuButton = document.querySelector(".MenuButton");
 
 MenuButton.addEventListener("click", (e) => {
@@ -425,8 +497,85 @@ MenuButton.addEventListener("click", (e) => {
   }
 });
 
+function seeInfoBacterias(id) {
+  const getMenu = document.querySelector("#menu");
+  const filterBacteria = AllBacterias.find((bacteria) => {
+    return bacteria.id == id;
+  });
+
+  getMenu.innerHTML = `
+    <h1>inf ${filterBacteria.name}</h1>
+  `;
+
+  const allParticles = filterBacteria.particles;
+
+  getMenu.innerHTML += `
+    <button id="btn-back">Voltar</button>
+    <button id="delete">deletar</button>
+  `;
+
+  getMenu.innerHTML += `
+  <div
+  class="AllrulesDiv"
+  >
+  ${allParticles
+    .map((particle, i) => {
+      return `
+    bacteria ${i + 1}
+    <div
+    style="
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    color: black;
+    margin-bottom: 10px;
+    "
+    id="${particle.name}"
+    class="getBacteria"
+    >
+    <div>X:${particle.x}</div>
+    <div>Y:${particle.y}</div>
+    <div>velX:${particle.vx}</div>
+    <div>velY:${particle.vy}</div>
+    </div>
+    `;
+    })
+    .join("")}
+  </div>
+  `;
+
+  const btnBack = document.querySelector("#btn-back");
+  btnBack.addEventListener("click", () => {
+    const menu = document.querySelector("#menu");
+    menu.remove();
+    Menu();
+    seeAllBacterias();
+  });
+
+  const deleteBtn = document.querySelector("#delete");
+
+  deleteBtn.addEventListener("click", () => {
+
+    const bacteriaIndex = AllBacterias.findIndex(bacteria => bacteria.id === id);
+    if (bacteriaIndex > -1) {
+      AllBacterias.splice(bacteriaIndex, 1);
+    }
+
+    particles = particles.filter(particle => particle.id !== id);
+  
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    menu.remove();
+    Menu();
+  });
+  
+}
+
 let latancy = 0.9;
 let size = 1;
 let tracingLine = false;
 udpate();
-
