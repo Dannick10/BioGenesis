@@ -93,7 +93,7 @@ function rule(p1, p2, g) {
         a.x += a.vx;
         a.y += a.vy;
 
-        if (d < 20) {
+        if (d < 30) {
           if (tracingLine) {
             line(a.x, a.y, b.x, b.y, a.color);
           }
@@ -155,7 +155,7 @@ function createObject(name, quantity, color) {
   particles = particles.concat(obj.particles);
   return obj;
 }
-function udpate() {
+function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let i = 0; i < particles.length; i++) {
@@ -163,9 +163,11 @@ function udpate() {
     particles[i].x += particles[i].vx;
     particles[i].y += particles[i].vy;
   }
-  requestAnimationFrame(udpate);
+  requestAnimationFrame(update);
 
   AllRules.forEach((r) => rule(r.A, r.B, r.g));
+
+  ctx.globalCompositeOperation = filter;
 }
 
 function rules(A, B, n) {
@@ -176,13 +178,18 @@ function rules(A, B, n) {
   };
 }
 
-const AllBacterias = [];
+const AllBacterias = [
+  
+];
 
-const AllRules = [];
+const AllRules = [
+  
+];
+
+let filter = "";
 
 function Menu() {
   const menu = document.createElement("div");
-
 
   menu.innerHTML = "";
   menu.id = "menu";
@@ -222,6 +229,10 @@ function Menu() {
     <div class="tracing">
     <Button>false</Button>
     </div>
+    <div id="settings" style="display: flex; flex-direction: column; gap: 10px; padding-top: 20px;">
+    <Button>Configurações</Button>
+    </div>
+   
   `;
 
   document.body.appendChild(menu);
@@ -236,12 +247,12 @@ function Menu() {
 
   divLatency[0].addEventListener("click", () => {
     latancy = latancy - 0.1;
-    Platency.innerHTML= `latencia: ${latancy}`
+    Platency.innerHTML = `latencia: ${latancy}`;
   });
 
   divLatency[1].addEventListener("click", () => {
     latancy = latancy + 0.1;
-    Platency.innerHTML= `latencia: ${latancy}`
+    Platency.innerHTML = `latencia: ${latancy}`;
   });
 
   divSize[0].addEventListener("click", () => {
@@ -255,7 +266,7 @@ function Menu() {
   });
 
   divTracingLine[0].addEventListener("click", (e) => {
-     tracingLine = !tracingLine;
+    tracingLine = !tracingLine;
     e.target.innerHTML = tracingLine ? "true" : "false";
     Pline.innerHTML = `Linha: ${tracingLine}`;
   });
@@ -264,12 +275,13 @@ function Menu() {
   const btnRegra = document.querySelector("#btn-regra");
   const btnMenu = document.querySelector("#btn-menu");
   const clean = document.querySelector("#clean");
+  const settings = document.querySelector("#settings");
   btnMenu.addEventListener("click", Bacteria);
   btnRegra.addEventListener("click", makeRuleMenu);
   btnVerBacterias.addEventListener("click", seeAllBacterias);
+  settings.addEventListener("click", settingsMenu);
   clean.addEventListener("click", cleanAll);
-
-
+  combinations.addEventListener("click", combinationsMenu);
 }
 
 function cleanAll() {
@@ -312,15 +324,13 @@ function Bacteria() {
   const value = document.querySelector("input[name='#']");
   const color = document.querySelector(".color");
 
-
-  color.addEventListener('change', (e) => {
+  color.addEventListener("change", (e) => {
     value.value = e.target.value;
   });
 
   value.addEventListener("change", (e) => {
-    color.value = e.target.value
-  })
-
+    color.value = e.target.value;
+  });
 
   const btnMake = document.querySelector("#btn-make");
   const btnBack = document.querySelector("#btn-back");
@@ -555,39 +565,39 @@ function seeInfoBacterias(id) {
   `;
 
   getMenu.innerHTML += `
-  <div
-  class="AllrulesDiv"
-  >
-  ${allParticles
-    .map((particle, i) => {
-      return `
-    bacteria ${i + 1}
     <div
-    style="
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: white;
-    color: black;
-    margin-bottom: 10px;
-    "
-    id="${particle.name}"
-    class="getBacteria"
+    class="AllrulesDiv"
     >
-    <div>X:${particle.x}</div>
-    <div>Y:${particle.y}</div>
-    <div>velX:${particle.vx}</div>
-    <div>velY:${particle.vy}</div>
-    </div>
-    `;
-    })
-    .join("")}
-  </div>
-  `;
+    ${allParticles
+      .map((particle, i) => {
+        return `
+        bacteria ${i + 1}
+        <div
+        style="
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: white;
+        color: black;
+        margin-bottom: 10px;
+        "
+        id="${particle.name}"
+        class="getBacteria"
+        >
+          <div>X:${Math.trunc(particle.x)}</div>
+          <div>Y:${Math.trunc(particle.y)}</div>
+          <div>velX:${particle.vx}</div>
+          <div>velY:${particle.vy}</div>
+        </div>
+        `;
+      })
+      .join("")}
+      </div>
+      `;
 
   const btnBack = document.querySelector("#btn-back");
   btnBack.addEventListener("click", () => {
@@ -600,22 +610,85 @@ function seeInfoBacterias(id) {
   const deleteBtn = document.querySelector("#delete");
 
   deleteBtn.addEventListener("click", () => {
-
-    const bacteriaIndex = AllBacterias.findIndex(bacteria => bacteria.id === id);
+    const bacteriaIndex = AllBacterias.findIndex(
+      (bacteria) => bacteria.id === id
+    );
     if (bacteriaIndex > -1) {
       AllBacterias.splice(bacteriaIndex, 1);
     }
 
-    particles = particles.filter(particle => particle.id !== id);
-  
+    particles = particles.filter((particle) => particle.id !== id);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     menu.remove();
     Menu();
   });
-  
+}
+
+function settingsMenu() {
+  const getMenu = document.querySelector("#menu");
+  getMenu.innerHTML = `
+    <h1>Config</h1>
+   `;
+
+  ctx.globalCompositeOperation = "color";
+
+  getMenu.innerHTML += `
+   <label for="filter">Filtros</label>
+   <select id="filter">
+  <option value="source-over">Normal</option>
+  <option value="source-in">Source In</option>
+  <option value="source-out">Source Out</option>
+  <option value="source-atop">Source Atop</option>
+  <option value="destination-over">Destination Over</option>
+  <option value="destination-in">Destination In</option>
+  <option value="destination-out">Destination Out</option>
+  <option value="destination-atop">Destination Atop</option>
+  <option value="lighter">Lighter</option>
+  <option value="copy">Copy</option>
+  <option value="xor">XOR</option>
+  <option value="multiply">Multiply</option>
+  <option value="screen">Screen</option>
+  <option value="overlay">Overlay</option>
+  <option value="darken">Darken</option>
+  <option value="lighten">Lighten</option>
+  <option value="color-dodge">Color Dodge</option>
+  <option value="color-burn">Color Burn</option>
+  <option value="hard-light">Hard Light</option>
+  <option value="soft-light">Soft Light</option>
+  <option value="difference">Difference</option>
+  <option value="exclusion">Exclusion</option>
+  <option value="hue">Hue</option>
+  <option value="saturation">Saturation</option>
+  <option value="color">Color</option>
+  <option value="luminosity">Luminosity</option>
+</select>
+
+   <label for="background">Cor de fundo</label>
+   <input class="color" type="color" id="background" value="#000000">
+   `;
+
+  getMenu.innerHTML += `
+   <Button>voltar</Button>
+   `;
+
+  const btnBack = document.querySelector("Button");
+  btnBack.addEventListener("click", () => {
+    const menu = document.querySelector("#menu");
+    menu.remove();
+    Menu();
+  });
+  const color = document.querySelector(".color");
+  color.addEventListener("change", (e) => {
+    canvas.style.backgroundColor = e.target.value;
+  });
+  const filterDivd = document.querySelector("#filter");
+  filterDivd.addEventListener("change", (e) => {
+    filter = e.target.value;
+  });
 }
 
 let latancy = 0.9;
-let size = 1;
+let size = 2;
 let tracingLine = false;
-udpate();
+update();
