@@ -281,7 +281,6 @@ function Menu() {
   btnVerBacterias.addEventListener("click", seeAllBacterias);
   settings.addEventListener("click", settingsMenu);
   clean.addEventListener("click", cleanAll);
-  combinations.addEventListener("click", combinationsMenu);
 }
 
 function cleanAll() {
@@ -465,7 +464,6 @@ function makeRuleMenu() {
 
 function makeBacteryMenu() {
   const inputs = document.querySelectorAll("input");
-  console.log(AllBacterias);
   const nome = inputs[0].value.toLowerCase();
   const quantidade = inputs[1].value.toLocaleLowerCase();
   const cor = inputs[2].value.toLocaleLowerCase();
