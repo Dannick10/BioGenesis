@@ -4,6 +4,15 @@
   box-sizing: border-box;
 }
 
+
+html {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212121;
+}
+
 body {
   display: flex;
   justify-content: center;
@@ -25,6 +34,56 @@ button {
   border: none;
   font-weight: bold;
   cursor: pointer;
+  font-size: 17px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgb(56, 56, 56) 0%,
+    rgb(36, 36, 36) 66%,
+    rgb(41, 41, 41) 100%
+  );
+  color: rgb(218, 218, 218);
+  border: none;
+}
+
+button:hover {
+  background: linear-gradient(
+    180deg,
+    rgb(90, 90, 90) 0%,
+    rgb(36, 36, 36) 66%,
+    rgb(41, 41, 41) 80%
+  );
+  color: rgb(218, 218, 218);
+  box-shadow: 0px 0px 20px -18px;
+}
+
+input:not(input[type="color"]) {
+  width: 100%;
+  max-width: 220px;
+  height: 45px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid lightgrey;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0px 0px 20px -18px;
+}
+
+select {
+  width: 100%;
+  max-width: 220px;
+  height: 45px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid lightgrey;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0px 0px 20px -18px;
+}
+
+option {
+  padding: 10px;
+  font-size: 17px;
 }
 
 
@@ -63,6 +122,10 @@ button {
 
 .MenuButton span:nth-child(3) {
     top: 1.8em;
+}
+
+#active  span{
+  background-color: rgb(252, 46, 46);
 }
 
 #active span:nth-child(1){
