@@ -74,8 +74,8 @@ function rule(p1, p2, g) {
   let particles2 = p2.particles;
 
   for (let i = 0; i < particles1.length; i++) {
-    let fx = 0;
-    let fy = 0;
+    let fx;
+    let fy;
     let F;
 
     for (let j = 0; j < particles2.length; j++) {
@@ -83,7 +83,7 @@ function rule(p1, p2, g) {
       let b = particles2[j];
       let dx = b.x - a.x;
       let dy = b.y - a.y;
-      let d = Math.sqrt(dx * dx + dy * dy);
+      d = Math.sqrt(dx * dx + dy * dy);
       if (d > 0 && d < 80) {
         F = (g * 1) / d;
         fx += F * dx;
@@ -93,31 +93,40 @@ function rule(p1, p2, g) {
         a.x += a.vx;
         a.y += a.vy;
 
-        if (d < 30) {
-          if (tracingLine) {
+        if (InvertLine) {
+          if (d > distanceLine) {
             line(a.x, a.y, b.x, b.y, a.color);
           }
-        }
-
-        if (a.x <= size || a.x - size >= canvas.width) {
-          a.vx = -a.vx;
-          a.x += a.vx;
-        }
-        if (a.y <= size || a.y - size >= canvas.height) {
-          a.vy = -a.vy;
-          a.x += a.vy;
-        }
-
-        if (b.x <= size || b.x - size >= canvas.width) {
-          b.vx = -b.vx;
-          b.x += b.vx;
-        }
-
-        if (b.y <= size || b.y - size >= canvas.height) {
-          b.vy = -b.vy;
-          b.x += b.vy;
+        } else {
+          if (d < distanceLine) {
+            if (tracingLine) {
+              line(a.x, a.y, b.x, b.y, a.color);
+            }
+          }
         }
       }
+    }
+  }
+}
+
+function colissionWall() {
+  for (let i = 0; i < particles.length; i++) {
+    let a = particles[i];
+
+    if (a.x < size) {
+      a.x = size;
+      a.vx *= -1;
+    } else if (a.x > canvas.width - size) {
+      a.x = canvas.width - size;
+      a.vx *= -1;
+    }
+
+    if (a.y < size) {
+      a.y = size;
+      a.vy *= -1;
+    } else if (a.y > canvas.height - size) {
+      a.y = canvas.height - size;
+      a.vy *= -1;
     }
   }
 }
@@ -163,6 +172,8 @@ function update() {
     particles[i].x += particles[i].vx;
     particles[i].y += particles[i].vy;
   }
+
+  colissionWall();
   requestAnimationFrame(update);
 
   AllRules.forEach((r) => rule(r.A, r.B, r.g));
@@ -179,15 +190,24 @@ function rules(A, B, n) {
 }
 
 const AllBacterias = [
-  
+  createObject("green", 100, "green"),
+  createObject("red", 100, "red"),
+  createObject("yellow", 100, "yellow"),
 ];
 
 const AllRules = [
-  
+  rules(AllBacterias[0], AllBacterias[0], -2.32),
+  rules(AllBacterias[0], AllBacterias[1], -1.17),
+  rules(AllBacterias[0], AllBacterias[2], 1.34),
+  rules(AllBacterias[1], AllBacterias[1], -3.1),
+  rules(AllBacterias[1], AllBacterias[0], -1.34),
+  rules(AllBacterias[2], AllBacterias[2], 1.15),
+  rules(AllBacterias[2], AllBacterias[0], -1.2),
 ];
 
 let filter = "";
-
+let distanceLine = 20;
+let InvertLine = false;
 function Menu() {
   const menu = document.createElement("div");
 
@@ -215,19 +235,26 @@ function Menu() {
       gap: 10px;
     "
     >
-    <p class="pLatency">Latencia: ${latancy}</p>
+    <p class="Mbtn pLatency">Latencia: ${latancy}</p>
     <div class="latency">
     <Button>-</Button>
     <Button>+ </Button>
     <div>
-    <p class="pSize">tamanho: ${size}</p>
+    <p class="Mbtn pSize">tamanho: ${size}</p>
     <div class="size">
     <Button>-</Button>
     <Button>+ </Button>
     </div>
-    <p class="pLine">Linha: ${tracingLine}</p>
+    <p class="Mbtn pLine">Linha: ${tracingLine}</p>
     <div class="tracing">
     <Button>false</Button>
+    <div class="distanceLine">
+        <p class="Mbtn pDistanceLine">DistanciaLinha: ${distanceLine}</p>
+        <Button>-</Button>
+         <Button>+</Button>
+      </div>
+      <p class="Mbtn pInvertLine">InverterDistancia: ${InvertLine}</p>
+      <Button>false</Button>
     </div>
     <div id="settings" style="display: flex; flex-direction: column; gap: 10px; padding-top: 20px;">
     <Button>Configurações</Button>
@@ -240,11 +267,14 @@ function Menu() {
   const divLatency = document.querySelectorAll(".latency button");
   const divSize = document.querySelectorAll(".size button");
   const divTracingLine = document.querySelectorAll(".tracing button");
+  const distanceControls = document.querySelectorAll(".distanceLine button");
+  const invertLineBtn = document.querySelector(".pInvertLine + Button");
 
   const Pline = document.querySelector(".pLine");
   const Psize = document.querySelector(".pSize");
   const Platency = document.querySelector(".pLatency");
-
+  const PDistanceline = document.querySelector(".pDistanceline");
+  const pInvertLine = document.querySelector(".pInvertLine");
   divLatency[0].addEventListener("click", () => {
     latancy = latancy - 0.1;
     Platency.innerHTML = `latencia: ${latancy}`;
@@ -271,6 +301,27 @@ function Menu() {
     Pline.innerHTML = `Linha: ${tracingLine}`;
   });
 
+  distanceControls[0].addEventListener("click", () => {
+    distanceLine = Math.max(1, distanceLine - 1);
+    document.querySelector(
+      ".pDistanceLine"
+    ).innerHTML = `DistanciaLinha: ${distanceLine}`;
+  });
+
+  distanceControls[1].addEventListener("click", () => {
+    distanceLine += 1;
+    document.querySelector(
+      ".pDistanceLine"
+    ).innerHTML = `DistanciaLinha: ${distanceLine}`;
+  });
+
+  invertLineBtn.addEventListener("click", (e) => {
+    InvertLine = !InvertLine;
+    e.target.innerHTML = InvertLine ? "true" : "false";
+    document.querySelector(
+      ".pInvertLine"
+    ).innerHTML = `InverterDistancia: ${InvertLine}`;
+  });
   const btnVerBacterias = document.querySelector("#btn-ver-bacterias");
   const btnRegra = document.querySelector("#btn-regra");
   const btnMenu = document.querySelector("#btn-menu");
@@ -417,6 +468,25 @@ function makeRuleMenu() {
  </div>
   </div>
  `;
+
+  getMenu.innerHTML += `
+ <div
+ >
+ ${AllRules.map((rule) => {
+   return `
+  <p
+  class="rules"
+  data-a="${rule.A.name}"
+  data-b="${rule.B.name}"
+  data-g="${rule.g}"
+  style="background-color: white; color: black; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px;">
+  ${rule.A.name} + ${rule.B.name} = ${rule.g}
+  </p>
+  `;
+ })}
+ </div>
+  </div>
+  `;
 
   const optionsRules = document.querySelectorAll(".rules");
   optionsRules.forEach((option) => {
@@ -686,7 +756,7 @@ function settingsMenu() {
   });
 }
 
-let latancy = 0.9;
+let latancy = 0.5;
 let size = 2;
 let tracingLine = false;
 update();
