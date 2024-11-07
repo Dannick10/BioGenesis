@@ -155,11 +155,11 @@ function colisionMouse(mouse) {
 }
 function createObject(name, quantity, color) {
   const idObj = Math.random().toString(36).substring(2, 15) + `${name}`;
-
+  let actual = idObj;
   const obj = {
-    id: idObj,
+    id: actual,
     name: name,
-    particles: create(quantity, color, idObj),
+    particles: create(quantity, color, actual),
   };
   particles = particles.concat(obj.particles);
   return obj;
@@ -273,8 +273,6 @@ function Menu() {
   const Pline = document.querySelector(".pLine");
   const Psize = document.querySelector(".pSize");
   const Platency = document.querySelector(".pLatency");
-  const PDistanceline = document.querySelector(".pDistanceline");
-  const pInvertLine = document.querySelector(".pInvertLine");
   divLatency[0].addEventListener("click", () => {
     latancy = latancy - 0.1;
     Platency.innerHTML = `latencia: ${latancy}`;
@@ -629,6 +627,7 @@ function seeInfoBacterias(id) {
 
   getMenu.innerHTML += `
     <button id="btn-back">Voltar</button>
+    <button id="edit">editar</button>
     <button id="delete">deletar</button>
   `;
 
@@ -656,10 +655,8 @@ function seeInfoBacterias(id) {
         id="${particle.name}"
         class="getBacteria"
         >
-          <div>X:${Math.trunc(particle.x)}</div>
-          <div>Y:${Math.trunc(particle.y)}</div>
-          <div>velX:${particle.vx}</div>
-          <div>velY:${particle.vy}</div>
+          <div class="pos">X:${Math.trunc(particle.x)}</div>
+          <div class="pos">Y:${Math.trunc(particle.y)}</div>  
         </div>
         `;
       })
@@ -690,6 +687,14 @@ function seeInfoBacterias(id) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     menu.remove();
     Menu();
+  });
+
+  const edit = document.querySelector("#edit");
+  edit.addEventListener("click", () => {
+    const menu = document.querySelector("#menu");
+    menu.remove();
+    Menu();
+    editCurrentBacteryMenu(id);
   });
 }
 
@@ -754,6 +759,59 @@ function settingsMenu() {
   filterDivd.addEventListener("change", (e) => {
     filter = e.target.value;
   });
+}
+
+function editCurrentBacteryMenu(id) {
+  const filterBacteria = AllBacterias.find((bacteria) => {
+    return bacteria.id == id;
+  });
+
+  const color = filterBacteria.particles[0].color;
+
+  const getMenu = document.querySelector("#menu");
+  getMenu.innerHTML = `
+    <h1>Editar</h1>
+   `;
+
+  getMenu.innerHTML += `
+  <label for="name">Mudar nome</label>
+  <input id="name" type="text" name="name" value="${filterBacteria.name}">
+  <label for="color">Mudar cor</label>
+  <input id="color" class="color" type="color" id="color" value="${color}">
+`;
+
+  getMenu.innerHTML += `
+  <Button>voltar</Button>
+  `;
+
+  const btnBack = document.querySelector("Button");
+  btnBack.addEventListener("click", () => {
+    const menu = document.querySelector("#menu");
+    menu.remove();
+    Menu();
+  });
+
+  const name = document.querySelector("#name");
+  name.addEventListener("change", (e) => {
+    const bacteriaIndex = AllBacterias.findIndex(
+      (bacteria) => bacteria.id === id
+    );
+    if (bacteriaIndex > -1) {
+      AllBacterias[bacteriaIndex].name = e.target.value;
+    }
+  });
+
+  const colorInput = document.querySelector(".color");
+  colorInput.addEventListener("change", (e) => {
+    const bacteriaIndex = AllBacterias.findIndex(
+      (bacteria) => bacteria.id === id
+    );
+    if (bacteriaIndex > -1) {
+       for(let i = 0; i < AllBacterias[bacteriaIndex].particles.length; i++){
+        AllBacterias[bacteriaIndex].particles[i].color = e.target.value;
+       }
+    }}) 
+
 }
 
 let latancy = 0.5;
